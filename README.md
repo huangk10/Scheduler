@@ -4,9 +4,20 @@
 ## Dependency
 python 3.x
 
+## How to install
+
+```bash
+$ git clone https://github.com/huangk10/Scheduler
+$ cd Scheduler
+$ python setup.py build
+$ python setup.py install
+```
+
 ## Easy to use
 
 ```python
+from scheduler import Scheduler
+
 with Scheduler() as scheduler:
     scheduler.register(process_one, process_one_args)
     scheduler.register(process_two, process_two_args)
