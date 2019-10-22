@@ -28,13 +28,13 @@ class Scheduler:
         else:
             raise TypeError('unsupported parallel type')
         self._futures = []
-        self.process_start = time.time()
+        self._process_start = time.time()
         self.queue = Queue()
         self._results = []
-        self.result_show_t = Thread(target=self.show_result)
-        self.result_show_t.daemon = True
+        self._result_show_t = Thread(target=self.show_result)
+        self._result_show_t.daemon = True
         if show_info:
-            self.result_show_t.start()
+            self._result_show_t.start()
 
     def register(self, event, *args, **kwargs):
         self._events.append(_WorkItem(event, args, kwargs))
@@ -42,7 +42,9 @@ class Scheduler:
     def _prepare(self):
         for work_item in self._events:
             if not isinstance(work_item.fn, list):
-                _future = self._pool.submit(work_item.fn, *work_item.args, **work_item.kwargs)
+                _future = self._pool.submit(work_item.fn,
+                                            *work_item.args,
+                                            **work_item.kwargs)
                 _future._fn_name = work_item.fn.__name__
                 _future.add_done_callback(self.callback)
                 self._futures.append(_future)
@@ -89,7 +91,8 @@ class Scheduler:
             else:
                 results = self._order_exe(work_item)
                 print(([func.__name__ for func in work_item.fn], results))
-                self._results.append(([func.__name__ for func in work_item.fn], results))
+                self._results.append(([func.__name__ for func in work_item.fn],
+                                      results))
                 for result in results:
                     self.queue.put(result)
 
@@ -107,5 +110,6 @@ class Scheduler:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._pool.shutdown(wait=True)
-        self.process_end = time.time()
-        print(f"the process total time as: {self.process_end - self.process_start} s")
+        self._process_end = time.time()
+        print(f"the process total time as: "
+              f"{self._process_end - self._process_start} s")
