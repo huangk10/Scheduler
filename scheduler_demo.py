@@ -25,9 +25,11 @@ def task_k(k):
 
 
 if __name__ == '__main__':
-    with Scheduler(kind='thread', max_workers=4, show_info=True) as scheduler:
+    with Scheduler(kind='thread', max_workers=4) as scheduler:
         scheduler.register(task_1)
         scheduler.register([task_2, task_3])
         scheduler.register(task_k, 4)
         scheduler.register([task_k, task_k], 5)
         scheduler.parallel()
+        result = scheduler.results()
+        print(result)
